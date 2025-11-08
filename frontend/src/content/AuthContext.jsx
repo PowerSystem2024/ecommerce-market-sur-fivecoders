@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
 
     const signin = async (data) => {
         try {
-            const res = await cliente.post('/signin', data);
+            const res = await cliente.post('/ingresar', data);
             console.log(res);
             setUser(res.data);
             setIsAuth(true);
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     const signup = async (data) => {
         try {
             setErrors(null);
-            const res = await cliente.post('/signup', data);
+            const res = await cliente.post('/registro', data);
             console.log(res);
             setUser(res.data);
             setIsAuth(true);
@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
 
     const signout = async () => {
         try {
-            await cliente.post('/signout');
+            await cliente.post('/cerrar-sesion');
             setUser(null);
             setIsAuth(false);
             Cookie.remove("token");
@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if (Cookie.get("token")) {
-            axios.get('http://localhost:3001/api/profile', {
+            axios.get('http://localhost:3000/api/perfil', {
                 withCredentials: true,
             }).then(res => {
                 setUser(res.data);
