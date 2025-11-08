@@ -4,16 +4,16 @@ import { BiTask, BiUserCircle } from 'react-icons/bi';
 import CartIcon from '../../assets/cart.svg';
 
 export const PublicRoutes = [
-  { name: 'Descubrir', path: '/ProductDiscoveryPage'},
+  { name: 'Descubrir', path: '/descubrir-productos'},
   { name: 'Home', path: '/' },
-  { name: 'Nosotros', path: '/about' },
-  { name: 'Iniciar Sesion', path: '/login' },
-  { name: 'Registro', path: '/register' }
+  { name: 'Nosotros', path: '/nosotros' },
+  { name: 'Iniciar Sesion', path: '/inicio-de-sesion' },
+  { name: 'Registro', path: '/registro' }
 ];
 
 export const PrivateRoutes = [
-  { name: 'Descubrir', path: '/ProductDiscoveryPage'},
-  { name: "Perfil", path: "/profile", icon: <BiUserCircle /> },
+  { name: 'Descubrir', path: '/descubrir-productos'},
+  { name: "Perfil", path: "/perfil", icon: <BiUserCircle /> },
   { name: "Tareas", path: "/tareas", icon: <BiTask /> },
   { name: "Agregar", path: "/tareas/crear", icon: <MdAddTask /> },
   { name: 'Carrito', path: "/cart", icon: CartIcon}

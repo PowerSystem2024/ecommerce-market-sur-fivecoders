@@ -11,8 +11,8 @@ import ProductIcon from "../../assets/object.svg";
 import ShoppingBag  from "../../assets/shopping.svg";
 
 const sidebarItems = [
-  { label: "Mi Perfil", hyperlink: "/UserPage", icon: ProfileIcon },
-  { label: "Mis Productos", hyperlink: "/ProductPage", icon: ProductIcon },
+  { label: "Mi Perfil", hyperlink: "/pagina-usuario", icon: ProfileIcon },
+  { label: "Mis Productos", hyperlink: "/producto", icon: ProductIcon },
   { label: "Mis Ventas", hyperlink: "/projects", icon: VenderIcon },
   { label: "Mis Compras", hyperlink: "/purchases", icon: ShoppingBag },
   // { label: "Inbox", hyperlink: "/inbox", icon: InboxIcon, extra: '3' },
