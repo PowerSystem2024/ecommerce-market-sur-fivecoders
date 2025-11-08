@@ -1,0 +1,145 @@
+import { pool } from "../db/db.js";
+import bcrypt from "bcrypt";
+import { generarToken } from "../libs/jwt.js";
+
+export const ingresar = async (req, res) => {
+  const { correo, contrasenia } = req.body;
+
+  console.log(correo, contrasenia);
+
+  const result = await pool.query("SELECT * FROM usuarios WHERE correo = $1 ", [
+    correo,
+  ]);
+  const datosUsuario = result.rows[0];
+
+  const validarContrasenia = await bcrypt.compare(
+    contrasenia,
+    datosUsuario.contrasenia
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
+
+  if (!validarContrasenia) {
+    return res.status(401).json({ message: "Contraseña incorrecta" });
+  }
+
+  const token = await generarToken({
+    id: datosUsuario.id,
+    rol: datosUsuario.rol,
+  });
+  res.cookie("token", token, {
+    //httpOnly: true,
+    //secure: true,
+    sameSite: "none",
+    maxAge: 60 * 60 * 24 * 1000, //1 dia
+  });
+
+  const {
+    id,
+    nombre: nombreUsuario,
+    correo: emailUsuario,
+    rol,
+    fecha_registro,
+  } = datosUsuario;
+
+  return res.json({
+    message: "Ingreso exitoso",
+    user: {
+      id,
+      nombre: nombreUsuario,
+      correo: emailUsuario,
+      rol,
+      fecha_registro,
+    },
+  });
+};
+
+export const registrar = async (req, res, next) => {
+  const { nombre, correo, contrasenia } = req.body;
+  try {
+    const hashedContrasenia = await bcrypt.hash(contrasenia, 10); //acá se hashea la contraseña antes de guardarla
+    console.log("hashedContrasenia:", hashedContrasenia);
+    const result = await pool.query(
+      "INSERT INTO usuarios (nombre, correo, contrasenia) VALUES ($1, $2, $3) RETURNING *",
+      [nombre, correo, hashedContrasenia]
+    );
+
+    const nuevoUsuario = result.rows[0];
+    const token = await generarToken({
+      id: nuevoUsuario.id,
+      rol: nuevoUsuario.rol,
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSit: "none",
+      maxAge: 60 * 60 * 24 * 1000, //1 dia
+    });
+
+    const {
+      id,
+      nombre: nombreUsuario,
+      correo: emailUsuario,
+      rol,
+      fecha_registro,
+    } = nuevoUsuario;
+    return res.status(201).json({
+      message: "Usuario registrado exitosamente",
+      user: {
+        id,
+        nombre: nombreUsuario,
+        correo: emailUsuario,
+        rol,
+        fecha_registro,
+      },
+    });
+  } catch (error) {
+    if (error.code === "23505") {
+      return res
+        .status(400)
+        .json({ message: "El correo electrónico ya está en uso" });
+    }
+    next(error);
+  }
+};
+
+export const cerrarSesion = async (req, res) => {
+  res.clearCookie("token");
+  return res.json("Cierre de sesión exitoso");
+};
+
+
+export const perfil = async (req, res) => {
+  const result = await pool.query("SELECT * FROM usuarios WHERE id = $1", [
+    req.usuarioId,
+  ]);
+  const datosUsuario = result.rows[0];
+
+  if (!datosUsuario) {
+    return res.status(404).json({
+      message: "Perfil de usuario no encontrado.",
+    });
+  }
+  const {
+    id,
+    nombre: nombreUsuario,
+    correo: emailUsuario,
+    contrasenia: contraseniaUsuario,
+    rol,
+    fecha_registro,
+  } = datosUsuario;
+
+  return res.json({
+    user: {
+      id,
+      nombre: nombreUsuario,
+      correo: emailUsuario,
+      contrasenia: contraseniaUsuario,
+      rol,
+      fecha_registro,
+    },
+  });
+};
