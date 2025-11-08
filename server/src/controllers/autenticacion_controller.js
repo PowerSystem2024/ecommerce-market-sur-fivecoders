@@ -111,7 +111,6 @@ export const cerrarSesion = async (req, res) => {
   return res.json("Cierre de sesión exitoso");
 };
 
-
 export const perfil = async (req, res) => {
   const result = await pool.query("SELECT * FROM usuarios WHERE id = $1", [
     req.usuarioId,
@@ -142,4 +141,39 @@ export const perfil = async (req, res) => {
       fecha_registro,
     },
   });
+};
+
+export const modificarPerfil = async (req, res, next) => {
+  const { nombre, correo, contrasenia } = req.body;
+  const idUsuario = req.usuarioId;
+  let hashedContrasenia
+  if(contrasenia){
+    hashedContrasenia  = await bcrypt.hash(contrasenia, 10);
+    console.log('contraseña hasheada ', hashedContrasenia)
+  }
+  
+  const fechaActual = new Date();
+  try {
+    const result = await pool.query(
+      "UPDATE usuarios SET nombre = $1 , correo = $2, contrasenia = $3, fecha_modificacion = $4  WHERE id = $5 RETURNING id, nombre, correo, rol, fecha_modificacion",
+      [nombre, correo, hashedContrasenia, fechaActual ,idUsuario]
+    );
+    const usuario = result.rows[0];
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+    return res.status(200).json({
+      message: "Datos del usuario actualizados con éxito",
+      usuario: usuario,
+    });
+  } catch (error) {
+    if (error.code === "23505") {
+      return res.status(400).json({
+        message: "El correo electrónico ya está en uso",
+      });
+    }
+    next(error);
+  }
 };
