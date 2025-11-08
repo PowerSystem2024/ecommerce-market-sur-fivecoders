@@ -1,8 +1,6 @@
 import {Routes, Route} from 'react-router-dom'
 import HomePage from './pages/HomePage.jsx'
 import PaginaNosotros from './pages/PaginaNosotros.jsx'
-import TasksPages from './pages/TasksPages.jsx'
-import TaskFormPage from './pages/TaskFormPage.jsx'
 import PaginaRegistro from './pages/PaginaRegistro.jsx'
 import PaginaUsuario from './pages/PaginaUsuario.jsx'
 import PaginaPerfil from './pages/PaginaPerfil.jsx'
@@ -27,16 +25,12 @@ function App() {
           <Route path="/nosotros" element={<PaginaNosotros/>} />
           <Route path="/inicio-de-sesion" element={<PaginaInicioSesion/>} />
           <Route path="/registro" element={<PaginaRegistro />} />
-          <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
           <Route path="/producto" element={<PaginaProducto/>}/>
           <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
 
           <Route element={<ProtectedRoutes isAllowed={isAuth} redirectTo="/inicio-de-sesion"/>}>
             <Route path="/perfil" element={<PaginaPerfil/>} />
-            <Route path="/tareas" element={<TasksPages />} />
-            <Route path="/tareas/crear" element={<TaskFormPage />} />
-            <Route path="/tareas/:id" element={<TaskFormPage />} />
-            <Route path="/tareas/editar/:id" element={<TaskFormPage />} />
+            <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />} />

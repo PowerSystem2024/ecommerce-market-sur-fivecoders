@@ -12,7 +12,8 @@ dotenv.config();
 const app = express();//acá estoy creando el servidor; encargado de recibir las peticiones y devolver respuestas
 const port = process.env.PORT || 3000; 
 
-app.use(cors({ origin: 'http://localhost:5173/', credentials: true })); // Configurar CORS
+
+app.use(cors({ origin: 'http://localhost:5173', credentials: true })); // Configurar CORS
 
 app.use(express.json()); //middleware que permite que el servidor entienda JSON en las peticiones
 app.use(cookieParser());

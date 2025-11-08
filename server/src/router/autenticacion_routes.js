@@ -1,4 +1,4 @@
-import Router  from "express-promise-router";
+import Router from "express-promise-router";
 import { estaAutenticado } from "../middlewares/autenticar_usuario_middleware.js";
 import { ingresar, registrar, cerrarSesion, perfil, modificarPerfil } from "../controllers/autenticacion_controller.js";
 

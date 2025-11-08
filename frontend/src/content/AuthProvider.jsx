@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const signin = async (data) => {
 
     try {
-      const res = await axios.post("http://localhost:3001/api/signin", data, {
+      const res = await axios.post("http://localhost:3001/api/inicio-de-sesion", data, {
         withCredentials: true, // esto es para que envie las cookies desde el backend
       });
       console.log(res);
@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
   };
 
   const signup = async (data) => {
-    const res = await axios.post("http://localhost:3001/api/signup", data, {
+    const res = await axios.post("http://localhost:3001/api/registro", data, {
       withCredentials: true, // esto es para que envie las cookies desde el backend
     });
     console.log(res);
