@@ -7,5 +7,5 @@ router.get('/obtener-productos', estaAutenticado, obtenerProductos);
 router.get('/obtener-producto/:id', estaAutenticado, obtenerProductoPorId)
 router.post('/cargar', estaAutenticado, cargarProducto)
 router.put('/modificar-producto/:id', estaAutenticado, modificarProducto)
-router.delete('/delete-producto/:id', estaAutenticado, eliminarProducto)
+router.delete('/borrar-producto/:id', estaAutenticado, eliminarProducto)
 export default router;
