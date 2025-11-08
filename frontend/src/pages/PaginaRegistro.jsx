@@ -11,7 +11,7 @@ function PaginaRegistro() {
   const onSubmit = handleSubmit(async(data) => {
   const user  = await signup(data);
     if(user){
-      navigate("/tareas");
+      navigate("/");
     }
   });
 
@@ -24,30 +24,30 @@ function PaginaRegistro() {
 
         <h2 className="text-gray-800 text-2xl font-semibold mb-6 text-center">Registro</h2>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Label htmlFor="name">Nombre</Label>
+          <Label htmlFor="nombre">Nombre</Label>
           <Input
             placeholder="Ingrese su nombre"
-            {...register("name", { required: true })}
+            {...register("nombre", { required: true })}
           />
-          {errors.name && (
+          {errors.nombre && (
             <span className="text-red-500 text-xs">Este campo es obligatorio</span>
           )}
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="correo">Email</Label>
           <Input
             type="email"
             placeholder="Ingrese su email"
-            {...register("email", { required: true })}
+            {...register("correo", { required: true })}
           />
-          {errors.email && (
+          {errors.correo && (
             <span className="text-red-500 text-xs">Este campo es obligatorio</span>
           )}
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="contrasenia">Contraseña</Label>
           <Input
             type="password"
             placeholder="Ingrese su contraseña"
-            {...register("password", { required: true })}
+            {...register("contrasenia", { required: true })}
           />
-          {errors.password && (
+          {errors.contrasenia && (
             <span className="text-red-500 text-xs">Este campo es obligatorio</span>
           )}
 

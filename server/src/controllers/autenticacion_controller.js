@@ -10,16 +10,18 @@ export const ingresar = async (req, res) => {
   const result = await pool.query("SELECT * FROM usuarios WHERE correo = $1 ", [
     correo,
   ]);
+  
   const datosUsuario = result.rows[0];
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
 
   const validarContrasenia = await bcrypt.compare(
     contrasenia,
     datosUsuario.contrasenia
   );
 
-  if (result.rows.length === 0) {
-    return res.status(404).json({ message: "Usuario no encontrado" });
-  }
 
   if (!validarContrasenia) {
     return res.status(401).json({ message: "Contraseña incorrecta" });
@@ -75,7 +77,7 @@ export const registrar = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSit: "none",
+      sameSite: "none",
       maxAge: 60 * 60 * 24 * 1000, //1 dia
     });
 
