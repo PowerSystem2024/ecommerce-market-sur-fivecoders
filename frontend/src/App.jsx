@@ -9,9 +9,11 @@ import NotFound from './pages/NotFound.jsx'
 import Navbar from './components/navbar/Navbar.jsx';
 import {Container} from './components/ui/Container.jsx';
 import {ProtectedRoutes} from './components/ProtectedRoutes.jsx';
-import { useAuth } from './context/AuthContext.jsx';
+import { useAuth } from './content/AuthContext.jsx';
 import PaginaProducto from './pages/PaginaProducto.jsx' 
-import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx'   
+import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx';   
+import Cart from './pages/Cart.jsx'
+
 
 function App() {
   const { isAuth } = useAuth();
@@ -27,10 +29,12 @@ function App() {
           <Route path="/registro" element={<PaginaRegistro />} />
           <Route path="/producto" element={<PaginaProducto/>}/>
           <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
+          <Route path="/Cart" element={<Cart/>}/>
 
           <Route element={<ProtectedRoutes isAllowed={isAuth} redirectTo="/inicio-de-sesion"/>}>
             <Route path="/perfil" element={<PaginaPerfil/>} />
             <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
+
           </Route>
 
           <Route path="*" element={<NotFound />} />
