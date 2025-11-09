@@ -15,7 +15,6 @@ const sidebarItems = [
   { label: "Mis Productos", hyperlink: "/producto", icon: ProductIcon },
   { label: "Mis Ventas", hyperlink: "/projects", icon: VenderIcon },
   { label: "Mis Compras", hyperlink: "/purchases", icon: ShoppingBag },
-  // { label: "Inbox", hyperlink: "/inbox", icon: InboxIcon, extra: '3' },
   { label: "Configuración", hyperlink: "/settings", icon: SettingsIcon },
   { label: "Cerrar sesión", hyperlink: "/logout", icon: LogoutIcon },
 ];
@@ -65,7 +64,7 @@ function Sidebar() {
           ${open ? 'translate-x-0' : '-translate-x-full'}
           sm:translate-x-0 sm:static
           sm:sticky sm:top-0
-          h-screen
+          h-screen sm:h-auto sm:min-h-screen
           sm:overflow-y-auto
         `}
         aria-label="Sidebar"
