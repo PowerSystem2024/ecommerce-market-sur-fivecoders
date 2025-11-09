@@ -2,6 +2,7 @@ import express from "express";
 import autenticacionRoutes from  "./router/autenticacion_routes.js";
 import productosRoutes from "./router/productos_routes.js";
 import categoriasRoutes from "./router/categorias_router.js";
+import ordenesRoutes from "./router/ordenes_routes.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api', autenticacionRoutes); //middleware para las rutas de autenticación
 app.use('/api/productos', productosRoutes); //middleware para las rutas de productos
 app.use('/api/categorias', categoriasRoutes)
+app.use('/api', ordenesRoutes)
 
 app.use((err, req, res, next) =>{
     res.status(500).json({
