@@ -12,7 +12,7 @@ export const useAuth = () => {
         throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
-}
+};
 
 // AuthProvider
 export function AuthProvider({ children }) {
@@ -26,84 +26,106 @@ export function AuthProvider({ children }) {
         try {
             setErrors(null);
             const res = await cliente.post('/ingresar', data);
-            console.log('✅ Login exitoso:', res.data);
             setUser(res.data.user);
             setIsAuth(true);
             return res.data.user;
         } catch (error) {
             if (error.response && error.response.data) {
-                setErrors(Array.isArray(error.response.data) ? error.response.data : [error.response.data]);
+                setErrors(
+                    Array.isArray(error.response.data) 
+                        ? error.response.data 
+                        : [error.response.data]
+                );
             } else {
                 setErrors([{ message: 'Error de conexión. Verifica que el servidor esté corriendo.' }]);
             }
             throw error;
         }
-    }
+    };
 
     // Registro
     const signup = async (data) => {
         try {
             setErrors(null);
             const res = await cliente.post('/registro', data);
-            console.log('✅ Registro exitoso:', res.data);
             setUser(res.data.user);
             setIsAuth(true);
             return res.data.user;
         } catch (error) {
             if (error.response && error.response.data) {
-                setErrors(Array.isArray(error.response.data) ? error.response.data : [error.response.data]);
+                setErrors(
+                    Array.isArray(error.response.data)
+                        ? error.response.data
+                        : [error.response.data]
+                );
             } else {
                 setErrors([{ message: 'Error de red' }]);
             }
             throw error;
         }
-    }
+    };
+
+    // Actualizar datos del usuario
+    const updateUser = async (datos) => {
+        try {
+            const res = await cliente.put('/modificar-perfil', datos);
+            setUser(res.data.usuario); // Actualiza el estado con los datos del backend
+            return res.data.usuario;
+        } catch (error) {
+            if (error.response && error.response.data) {
+                throw new Error(
+                    Array.isArray(error.response.data)
+                        ? error.response.data.join(', ')
+                        : error.response.data.message || 'Error al actualizar los datos.'
+                );
+            }
+            throw error;
+        }
+    };
 
     // Cerrar sesión
     const signout = async () => {
         try {
-            // El backend debe eliminar la cookie HttpOnly
             await cliente.post('/cerrar-sesion');
             setUser(null);
             setIsAuth(false);
-            console.log('✅ Sesión cerrada');
         } catch (error) {
             console.log('❌ Error al cerrar sesión:', error);
         }
-    }
+    };
 
     // Verificar sesión al montar
     useEffect(() => {
         const verificarSesion = async () => {
             try {
-                console.log('🔍 Verificando sesión...');
                 const res = await cliente.get('/perfil'); // cookie HttpOnly se envía automáticamente
-                console.log('✅ Sesión válida:', res.data.user);
                 setUser(res.data.user);
                 setIsAuth(true);
             } catch (err) {
-                console.log('ℹ️ No hay sesión activa o token inválido');
                 setUser(null);
                 setIsAuth(false);
             } finally {
                 setLoading(false);
             }
         };
-
         verificarSesion();
     }, []);
 
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            isAuth, 
-            errors, 
-            loading, 
-            signin, 
-            signup, 
-            signout 
-        }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuth,
+                errors,
+                loading,
+                signin,
+                signup,
+                signout,
+                updateUser,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 }
+
