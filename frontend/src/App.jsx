@@ -26,11 +26,11 @@ function App() {
           <Route path="/inicio-de-sesion" element={<PaginaInicioSesion/>} />
           <Route path="/registro" element={<PaginaRegistro />} />
           <Route path="/producto" element={<PaginaProducto/>}/>
-          <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
-
+          
           <Route element={<ProtectedRoutes isAllowed={isAuth} redirectTo="/inicio-de-sesion"/>}>
             <Route path="/perfil" element={<PaginaPerfil/>} />
             <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
+            <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />} />
