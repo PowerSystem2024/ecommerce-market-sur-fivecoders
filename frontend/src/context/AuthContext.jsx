@@ -46,9 +46,9 @@ export function AuthProvider({ children }) {
             setErrors(null);
             const res = await cliente.post('/registro', data);
             console.log(res);
-            setUser(res.data);
+            setUser(res.data.user);
             setIsAuth(true);
-            return res.data;
+            return res.data.user;
         } catch (error) {
             if (error.response && error.response.data) {
                 // Los errores de Zod vienen como array

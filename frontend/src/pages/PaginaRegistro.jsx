@@ -57,7 +57,7 @@ function PaginaRegistro() {
         </form>
         <div className="mt-4 text-center text-sm">
           <p className="text-gray-600">¿Ya tienes cuenta?{" "}
-            <Link to="/login" className="text-blue-500 hover:text-blue-600 font-medium">
+            <Link to="/inicio-de-sesion" className="text-blue-500 hover:text-blue-600 font-medium">
               Iniciar sesión
             </Link>
           </p>

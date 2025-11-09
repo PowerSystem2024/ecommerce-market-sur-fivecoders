@@ -49,7 +49,7 @@ function LoginPage() {
         </form>
         <div className="mt-4 text-center text-sm">
           <p className="text-gray-600">¿No tienes cuenta?{" "}
-            <Link to="/register" className="text-blue-500 hover:text-blue-600 font-medium">
+            <Link to="/registro" className="text-blue-500 hover:text-blue-600 font-medium">
               Registrate
             </Link>
           </p>

@@ -1,6 +1,7 @@
 import { pool } from "../db/db.js";
 import bcrypt from "bcrypt";
 import { generarToken } from "../libs/jwt.js";
+import md5 from "md5";
 
 export const ingresar = async (req, res) => {
   const { correo, contrasenia } = req.body;
@@ -14,7 +15,7 @@ export const ingresar = async (req, res) => {
   const datosUsuario = result.rows[0];
 
   if (result.rows.length === 0) {
-    return res.status(404).json({ message: "Usuario no encontrado" });
+    return res.status(404).json([ "Usuario no encontrado"]);
   }
 
   const validarContrasenia = await bcrypt.compare(
@@ -24,7 +25,7 @@ export const ingresar = async (req, res) => {
 
 
   if (!validarContrasenia) {
-    return res.status(401).json({ message: "Contraseña incorrecta" });
+    return res.status(401).json(["Contraseña incorrecta"]);
   }
 
   const token = await generarToken({
@@ -62,10 +63,11 @@ export const registrar = async (req, res, next) => {
   const { nombre, correo, contrasenia } = req.body;
   try {
     const hashedContrasenia = await bcrypt.hash(contrasenia, 10); //acá se hashea la contraseña antes de guardarla
+    const gravatar = "https://www.gravatar.com/avatar/" + md5(correo);
     console.log("hashedContrasenia:", hashedContrasenia);
     const result = await pool.query(
-      "INSERT INTO usuarios (nombre, correo, contrasenia) VALUES ($1, $2, $3) RETURNING *",
-      [nombre, correo, hashedContrasenia]
+      "INSERT INTO usuarios (nombre, correo, contrasenia, gravatar) VALUES ($1, $2, $3, $4) RETURNING *",
+      [nombre, correo, hashedContrasenia, gravatar]
     );
 
     const nuevoUsuario = result.rows[0];
@@ -96,6 +98,7 @@ export const registrar = async (req, res, next) => {
         correo: emailUsuario,
         rol,
         fecha_registro,
+        gravatar
       },
     });
   } catch (error) {
