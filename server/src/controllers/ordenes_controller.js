@@ -1,21 +1,36 @@
 import { pool } from "../db/db.js";
 
-
 export const obtenerOrdenesCompra = async (req, res) => {
  try {
     const result = await pool.query(
-      "SELECT * FROM ordenes WHERE usuario_id = $1 ORDER BY fecha_orden DESC",
+         `SELECT
+          o.id AS orden_id,
+          o.fecha_orden,
+          o.total,
+          json_agg(
+              json_build_object(
+                  'item_id', io.id,
+                  'producto_id', io.producto_id,
+                  'nombre_producto', p.nombre, -- Asumiendo que quieres el nombre del producto
+                  'cantidad', io.cantidad,
+                  'precio_unitario', io.precio_unitario
+              )
+              ORDER BY io.id
+          ) AS items
+      FROM ordenes AS o
+      JOIN items_orden AS io ON o.id = io.orden_id
+      JOIN productos AS p ON io.producto_id = p.id
+      WHERE o.usuario_id = $1
+      GROUP BY o.id, o.fecha_orden, o.total
+      ORDER BY o.fecha_orden DESC;`,
       [req.usuarioId]
     );
+
     return res.json(result.rows);
   } catch (error) {
     console.error("Error al obtener órdenes de compra:", error);
-    return res.status(500).json({ message: "Error interno del servidor" });
+    return res.status(500).json(["Error interno del servidor"]);
   }
-
-};
-
-export const obtenerOrdenPorId = async (req, res) => {
 
 };
 
@@ -57,12 +72,8 @@ export const crearOrden = async (req, res, next) => {
     });
 
 } catch (error) {
-    await pool.query('ROLLBACK'); // Si algo falla, revertimos la transacción
+    await pool.query('ROLLBACK'); 
     console.error("Error al cargar la orden:", error);
-    next(error); // Pasamos el error al manejador de errores global
+    next(error); 
   } 
 };
-
-export const modificarOrden = async(req, res) =>{
-
-}
