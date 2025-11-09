@@ -9,7 +9,7 @@ import NotFound from './pages/NotFound.jsx'
 import Navbar from './components/navbar/Navbar.jsx';
 import {Container} from './components/ui/Container.jsx';
 import {ProtectedRoutes} from './components/ProtectedRoutes.jsx';
-import { useAuth } from './content/AuthContext.jsx';
+import { useAuth } from './context/AuthContext.jsx';
 import PaginaProducto from './pages/PaginaProducto.jsx' 
 import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx'   
 

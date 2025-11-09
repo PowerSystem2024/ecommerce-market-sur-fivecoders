@@ -1,7 +1,7 @@
 import { Card, Button, Input, Label } from "../components/ui";
 import {  useForm } from "react-hook-form";
 import { Link , useNavigate} from "react-router-dom";
-import {  useAuth } from "../content/AuthContext.jsx";
+import {  useAuth } from "../context/AuthContext.jsx";
 
 function PaginaRegistro() {
   const {register, handleSubmit, formState: { errors }} = useForm();
@@ -11,7 +11,7 @@ function PaginaRegistro() {
   const onSubmit = handleSubmit(async(data) => {
   const user  = await signup(data);
     if(user){
-      navigate("/");
+      navigate("/perfil");
     }
   });
 

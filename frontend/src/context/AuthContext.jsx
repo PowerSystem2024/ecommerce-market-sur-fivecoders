@@ -23,9 +23,10 @@ export function AuthProvider({ children }) {
         try {
             const res = await cliente.post('/ingresar', data);
             console.log(res);
-            setUser(res.data);
+            setUser(res.data.user);
             setIsAuth(true);
-            return res.data;
+            return res.data.user;
+            
         } catch (error) {
             if (error.response && error.response.data) {
                 if (Array.isArray(error.response.data)) {
@@ -74,10 +75,10 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if (Cookie.get("token")) {
-            axios.get('http://localhost:3000/api/perfil', {
+            axios.get('/perfil', {
                 withCredentials: true,
             }).then(res => {
-                setUser(res.data);
+                setUser(res.data.user);
                 setIsAuth(true);
             }).catch(err => {
                 setUser(null);

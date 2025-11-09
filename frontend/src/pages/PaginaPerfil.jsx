@@ -1,4 +1,4 @@
-import { useAuth } from '../content/AuthContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { Card, Container } from '../components/ui/index.js'
 
 function PaginaPerfil() {
@@ -19,8 +19,8 @@ function PaginaPerfil() {
 
           {/* Información del usuario */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-white">{user?.name}</h1>
-            <p className="text-gray-400 text-lg">{user?.email}</p>
+            <h1 className="text-3xl font-bold text-white">{user?.nombre}</h1>
+            <p className="text-gray-400 text-lg">{user?.correo}</p>
           </div>
 
           {/* Detalles adicionales */}
@@ -28,19 +28,19 @@ function PaginaPerfil() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <p className="text-gray-400 text-sm">Nombre</p>
-                <p className="text-white font-medium">{user?.name}</p>
+                <p className="text-black font-medium">{user?.nombre}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-gray-400 text-sm">Email</p>
-                <p className="text-white font-medium">{user?.email}</p>
+                <p className="text-gray-400 text-sm">Correo</p>
+                <p className="text-black font-medium">{user?.correo}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-400 text-sm">ID de Usuario</p>
-                <p className="text-white font-medium">{user?.id}</p>
+                <p className="text-black font-medium">{user?.id}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-400 text-sm">Fecha de Registro</p>
-                <p className="text-white font-medium">
+                <p className="text-black font-medium">
                   {user?.fecha_registro ? new Date(user.fecha_registro).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'long',

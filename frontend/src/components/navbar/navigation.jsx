@@ -14,6 +14,6 @@ export const PublicRoutes = [
 export const PrivateRoutes = [
   { name: 'Descubrir', path: '/descubrir-productos'},
   { name: "Perfil", path: "/perfil", icon: <BiUserCircle /> },
-  { name: "Agregar", path: "/tareas/crear", icon: <MdAddTask /> },
+  //{ name: "Agregar", path: "/tareas/crear", icon: <MdAddTask /> },
   { name: 'Carrito', path: "/cart", icon: CartIcon}
 ];

@@ -1,7 +1,7 @@
 import {Button, Card, Input, Label } from "../components/ui/index.js";
 import { Link, useNavigate } from "react-router-dom";
 import {useForm} from "react-hook-form";
-import { useAuth } from "../content/AuthContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function LoginPage() {
 
@@ -10,7 +10,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const onSubmit = handleSubmit(async(data) => {
     const user = await signin(data); 
-    if(user) {navigate("/profile");
+    if(user) {navigate("/perfil");
 
     }
   });
@@ -24,22 +24,22 @@ function LoginPage() {
 
         <h2 className="text-gray-800 text-2xl font-semibold mb-6 text-center">Iniciar sesión</h2>
         <form onSubmit={onSubmit} className="space-y-4">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="correo">Email</Label>
           <Input
             type="email"
             placeholder="Ingrese su email"
-            {...register("email", {required: true})}
+            {...register("correo", {required: true})}
           />
-          {errors.email && (
+          {errors.correo && (
             <span className="text-red-500 text-xs">Este campo es obligatorio</span>
           )}
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="contrasenia">Contraseña</Label>
           <Input
             type="password"
             placeholder="Ingrese su contraseña"
-            {...register("password", {required: true})}
+            {...register("contrasenia", {required: true})}
           />
-          {errors.password && (
+          {errors.contrasenia && (
             <span className="text-red-500 text-xs">Este campo es obligatorio</span>
           )}
 
