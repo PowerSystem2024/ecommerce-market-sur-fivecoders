@@ -3,7 +3,6 @@ import HomePage from './pages/HomePage.jsx'
 import PaginaNosotros from './pages/PaginaNosotros.jsx'
 import PaginaRegistro from './pages/PaginaRegistro.jsx'
 import PaginaUsuario from './pages/PaginaUsuario.jsx'
-import PaginaPerfil from './pages/PaginaPerfil.jsx'
 import PaginaInicioSesion from './pages/PaginaInicioSesion.jsx'
 import NotFound from './pages/NotFound.jsx'
 import Navbar from './components/navbar/Navbar.jsx';
@@ -12,6 +11,8 @@ import {ProtectedRoutes} from './components/ProtectedRoutes.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import PaginaProducto from './pages/PaginaProducto.jsx' 
 import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx'   
+import PaginaConfiguracion from './pages/PaginaConfiguracion.jsx'
+import PaginaCarrito from './pages/PaginaCarrito.jsx'
 
 function App() {
   const { isAuth } = useAuth();
@@ -26,11 +27,12 @@ function App() {
           <Route path="/inicio-de-sesion" element={<PaginaInicioSesion/>} />
           <Route path="/registro" element={<PaginaRegistro />} />
           <Route path="/producto" element={<PaginaProducto/>}/>
-          <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
-
+          
           <Route element={<ProtectedRoutes isAllowed={isAuth} redirectTo="/inicio-de-sesion"/>}>
-            <Route path="/perfil" element={<PaginaPerfil/>} />
             <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
+            <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
+            <Route path="/configuracion" element={<PaginaConfiguracion/>}/>
+            <Route path="/cart" element={<PaginaCarrito/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />} />

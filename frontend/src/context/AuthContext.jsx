@@ -1,95 +1,106 @@
 /* eslint-disable react-refresh/only-export-components */
-import axios from 'axios';
 import { createContext, useState, useContext, useEffect } from 'react';
-import Cookie from 'js-cookie';
-import cliente from '../api/axios.js';
+import cliente from '../api/axios.js'; // axios con withCredentials
 
 export const AuthContext = createContext();
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
+    if (!context) throw new Error("useAuth must be used within an AuthProvider");
     return context;
-}
+};
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [isAuth, setIsAuth] = useState(false);
     const [errors, setErrors] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const signin = async (data) => {
         try {
+            setErrors(null);
             const res = await cliente.post('/ingresar', data);
-            console.log(res);
             setUser(res.data.user);
             setIsAuth(true);
             return res.data.user;
-            
         } catch (error) {
-            if (error.response && error.response.data) {
-                if (Array.isArray(error.response.data)) {
-                    setErrors(error.response.data);
-                } else {
-                    setErrors([error.response.data]);
-                }
-            } else {
-                setErrors([{ message: 'Error de conexión. Verifica que el servidor esté corriendo.' }]);
-            }
+            setErrors(error.response?.data ? (Array.isArray(error.response.data) ? error.response.data : [error.response.data]) : [{ message: 'Error de conexión' }]);
             throw error;
         }
-    }
+    };
 
     const signup = async (data) => {
         try {
             setErrors(null);
             const res = await cliente.post('/registro', data);
-            console.log(res);
             setUser(res.data.user);
             setIsAuth(true);
             return res.data.user;
         } catch (error) {
-            if (error.response && error.response.data) {
-                // Los errores de Zod vienen como array
-                setErrors(Array.isArray(error.response.data) ? error.response.data : [error.response.data]);
-            } else {
-                setErrors([{ message: 'Error de red' }]);
-            }
+            setErrors(error.response?.data ? (Array.isArray(error.response.data) ? error.response.data : [error.response.data]) : [{ message: 'Error de red' }]);
             throw error;
         }
+    };
 
-    }
+    const updateUser = async (datos) => {
+        try {
+            const res = await cliente.put('/modificar-perfil', datos);
+            setUser(res.data.usuario);
+            return res.data.usuario;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Error al actualizar datos.');
+        }
+    };
 
     const signout = async () => {
         try {
             await cliente.post('/cerrar-sesion');
             setUser(null);
             setIsAuth(false);
-            Cookie.remove("token");
+        } catch (error) {
+            console.log('Error al cerrar sesión', error);
         }
-        catch (error) {
-            console.log('Error al cerrar sesión:', error);
+    };
+
+    const getUserById = async (id) => {
+        try {
+            const res = await cliente.get(`/usuarios/${id}`);
+            return res.data.user;
+        } catch (error) {
+            console.error("Error al obtener usuario:", error);
+            return { nombre: `Proveedor #${id}` };
         }
-    }
+    };
 
     useEffect(() => {
-        if (Cookie.get("token")) {
-            axios.get('/perfil', {
-                withCredentials: true,
-            }).then(res => {
+        const verificarSesion = async () => {
+            try {
+                const res = await cliente.get('/perfil');
                 setUser(res.data.user);
                 setIsAuth(true);
-            }).catch(err => {
+            } catch {
                 setUser(null);
                 setIsAuth(false);
-                Cookie.remove("token");
-                console.log('Error al obtener perfil:', err);
-            });
-        }
+            } finally {
+                setLoading(false);
+            }
+        };
+        verificarSesion();
     }, []);
 
-    return <AuthContext.Provider value={{ user, isAuth, errors, signup, signin, signout }}>
-        {children}
-    </AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={{
+            user,
+            isAuth,
+            errors,
+            loading,
+            signin,
+            signup,
+            signout,
+            updateUser,
+            getUserById,
+        }}>
+            {children}
+        </AuthContext.Provider>
+    );
 }

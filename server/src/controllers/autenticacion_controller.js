@@ -33,9 +33,9 @@ export const ingresar = async (req, res) => {
     rol: datosUsuario.rol,
   });
   res.cookie("token", token, {
-    //httpOnly: true,
-    //secure: true,
-    sameSite: "none",
+    // httpOnly: true,
+    secure: false, //en producción debe ser true
+    sameSite: "lax",
     maxAge: 60 * 60 * 24 * 1000, //1 dia
   });
 

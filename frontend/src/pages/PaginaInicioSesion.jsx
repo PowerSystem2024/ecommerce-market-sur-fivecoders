@@ -10,7 +10,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const onSubmit = handleSubmit(async(data) => {
     const user = await signin(data); 
-    if(user) {navigate("/perfil");
+    if(user) {navigate("/descubrir-productos");
 
     }
   });
