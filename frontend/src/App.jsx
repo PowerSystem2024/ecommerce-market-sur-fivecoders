@@ -12,6 +12,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import PaginaProducto from './pages/PaginaProducto.jsx' 
 import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx'   
 import PaginaConfiguracion from './pages/PaginaConfiguracion.jsx'
+import PaginaCarrito from './pages/PaginaCarrito.jsx'
 
 function App() {
   const { isAuth } = useAuth();
@@ -31,6 +32,7 @@ function App() {
             <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
             <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
             <Route path="/configuracion" element={<PaginaConfiguracion/>}/>
+            <Route path="/cart" element={<PaginaCarrito/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />} />
