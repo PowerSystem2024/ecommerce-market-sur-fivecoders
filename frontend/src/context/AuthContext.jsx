@@ -62,13 +62,18 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const getUserById = async (id) => {
+    // ⭐ Nueva función para obtener/refrescar datos del perfil
+    const obtenerPerfil = async () => {
         try {
-            const res = await cliente.get(`/usuarios/${id}`);
+            const res = await cliente.get('/perfil');
+            setUser(res.data.user);
+            setIsAuth(true);
             return res.data.user;
         } catch (error) {
-            console.error("Error al obtener usuario:", error);
-            return { nombre: `Proveedor #${id}` };
+            console.error('Error al obtener perfil:', error);
+            setUser(null);
+            setIsAuth(false);
+            throw error;
         }
     };
 
@@ -98,7 +103,7 @@ export function AuthProvider({ children }) {
             signup,
             signout,
             updateUser,
-            getUserById,
+            obtenerPerfil, // ⭐ Exportar la nueva función
         }}>
             {children}
         </AuthContext.Provider>

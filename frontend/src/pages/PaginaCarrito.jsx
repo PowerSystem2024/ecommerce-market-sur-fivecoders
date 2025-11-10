@@ -1,15 +1,18 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { FaTrash, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import { useOrdenes } from "../context/OrdenContext.jsx"; // <-- hook desde tu OrdenContext
 
 export default function PaginaCarrito() {
   const { cartItems, removeFromCart, updateQty, clearCart } = useCart();
+  const { crearOrden } = useOrdenes();
   const navigate = useNavigate();
   const shipping = 20;
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const subtotal = useMemo(() => cartItems.reduce((acc, it) => acc + it.price * it.qty, 0), [cartItems]);
-  const total = subtotal + shipping;
+  const total = subtotal + (cartItems.length > 0 ? shipping : 0);
 
   const changeQty = (id, delta) => {
     const item = cartItems.find(it => it.id === id);
@@ -19,12 +22,42 @@ export default function PaginaCarrito() {
     else updateQty(id, nuevaQty);
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) { alert("No hay productos en el carrito."); return; }
-    console.log({ items: cartItems, subtotal, shipping, total });
-    alert("Compra realizada. Revisá la consola para ver el pedido.");
-    clearCart();
-    navigate("/perfil");
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert("No hay productos en el carrito.");
+      return;
+    }
+
+    // Preparar items en el formato que espera tu backend
+    const itemsPayload = cartItems.map(it => ({
+      producto_id: it.id,
+      cantidad: it.qty,
+      precio_unitario: Number(it.price),
+    }));
+
+    setCheckoutLoading(true);
+    try {
+      const res = await crearOrden(itemsPayload);
+      // res puede contener message, orden, items según tu controller
+      console.log("Orden creada:", res);
+      alert("Compra realizada exitosamente.");
+
+      clearCart();
+      // redirigir a la página de órdenes para ver la orden creada
+      navigate("/mis-ordenes");
+    } catch (err) {
+      console.error("Error creando la orden:", err);
+      const serverErrors = err.response?.data;
+      if (serverErrors) {
+        // si el backend devuelve un array de mensajes
+        if (Array.isArray(serverErrors)) alert(serverErrors.join("\n"));
+        else alert(JSON.stringify(serverErrors));
+      } else {
+        alert("Ocurrió un error al crear la orden. Ver consola.");
+      }
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   return (
@@ -74,8 +107,12 @@ export default function PaginaCarrito() {
             <div className="flex justify-between font-bold"><span>Total</span><span>${cartItems.length > 0 ? total.toFixed(2) : '0.00'}</span></div>
           </div>
 
-          <button onClick={handleCheckout} className="bg-amber-400 text-zinc-900 font-bold w-full py-2 rounded flex justify-between items-center hover:bg-amber-300">
-            <span>${cartItems.length > 0 ? total.toFixed(2) : '0.00'}</span>
+          <button
+            onClick={handleCheckout}
+            disabled={checkoutLoading || cartItems.length === 0}
+            className={`bg-amber-400 text-zinc-900 font-bold w-full py-2 rounded flex justify-between items-center hover:bg-amber-300 ${checkoutLoading ? 'opacity-60 cursor-wait' : ''}`}
+          >
+            <span>{checkoutLoading ? 'Procesando...' : `$${cartItems.length > 0 ? total.toFixed(2) : '0.00'}`}</span>
             <span className="flex items-center gap-1">Pagar <FaArrowRight /></span>
           </button>
         </div>
@@ -83,3 +120,4 @@ export default function PaginaCarrito() {
     </div>
   );
 }
+

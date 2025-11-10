@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/sidebar/SideBar';
 import TarjetaProducto from '../components/TarjetaProducto/TarjetaProducto';
 import ProductDetailModal from '../components/ModalDetalles/ModalDetalles';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useProductos } from '../context/ProductosContext';
 import { useCart } from '../context/CartContext.jsx';
 import BusquedasProductos from '../components/BusquedaProductos/BusquedasProductos';
@@ -11,8 +12,10 @@ import FiltroRelevanciasProductos from '../components/BusquedaProductos/FiltroRe
 export default function PaginaDescubrirProductos() {
   const { productos, obtenerProductos } = useProductos();
   const { addToCart, cartItems } = useCart();
+  const { user } = useAuth();
   const [category, setCategory] = useState('all');
-  const [sort, setSort] = useState('relevance');
+  const [sort, setSort] = useState('relevance');  
+
   const [results, setResults] = useState([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,11 +23,6 @@ export default function PaginaDescubrirProductos() {
   const [query, setQuery] = useState('');
 
   // 📦 Mapeo de categorías
-  const CATEGORY_MAP = {
-    1: 'papeleria', 2: 'electronica', 3: 'computacion', 4: 'ferreteria',
-    5: 'panificacion', 6: 'maderas', 7: 'herramientas', 8: 'metalmecanica',
-    9: 'gastronomia', 10: 'construccion'
-  };
 
   const CATEGORIES = [
     { key: 'all', label: 'Todas', value: null },
@@ -39,6 +37,23 @@ export default function PaginaDescubrirProductos() {
     { key: 'gastronomia', label: 'Gastronomía', value: 9 },
     { key: 'construccion', label: 'Construcción', value: 10 },
   ];
+
+  const CATEGORY_MAP = { 
+    1:'papeleria',
+    2:'electronica',
+    3:'computacion',
+    4:'ferreteria',
+    5:'panificacion',
+    6:'maderas',
+    7:'herramientas',
+    8:'metalmecanica',
+    9:'gastronomia',
+    10:'construccion' 
+  };
+
+  useEffect(() => { 
+    obtenerProductos(); 
+  }, []);
 
   // 🔹 Transformar productos
   const transformarProductos = (productosDB) => {
@@ -57,39 +72,56 @@ export default function PaginaDescubrirProductos() {
     }));
   };
 
-  // 📦 Cargar productos al montar
-  useEffect(() => {
-    obtenerProductos();
-  }, []);
-
-  // 🔍 Lógica de búsqueda y filtros
-  const doSearch = () => {
+ // 🔍 Filtrado y búsqueda de productos
+  function doSearch() {
     if (!productos || productos.length === 0) return;
 
     const productosTransformados = transformarProductos(productos);
-    const q = query.trim().toLowerCase();
-
+    const q = (query || '').trim().toLowerCase();
+    
     let filtered = productosTransformados.filter(p => {
       if (category !== 'all' && p.category !== category) return false;
       if (!q) return true;
-      return (
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
-      );
+      return p.name.toLowerCase().includes(q) || 
+             p.description.toLowerCase().includes(q);
     });
 
-    // 🔽 Ordenar resultados
-    if (sort === 'price_asc') filtered.sort((a, b) => a.price - b.price);
-    if (sort === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+    if (sort === 'price_asc') filtered = filtered.sort((a,b) => a.price - b.price);
+    if (sort === 'price_desc') filtered = filtered.sort((a,b) => b.price - a.price);
 
     setResults(filtered);
     setVisibleCount(12);
-  };
+  }
 
-  // 🧠 Actualiza resultados automáticamente al cambiar filtros o query
+  // 🔁 Ejecutar búsqueda automáticamente cuando cambian filtros o query
   useEffect(() => {
     doSearch();
-  }, [productos, category, sort, query]);
+  }, [productos, query, category, sort]);
+
+  useEffect(() => {
+    if (productos && productos.length > 0) {
+      const transformed = productos.map(p => {
+        // Si el producto es del usuario actual, usa su nombre
+        // Si no, muestra "Proveedor #ID"
+        const proveedorNombre = (user && p.usuario_id === user.id) 
+          ? user.nombre 
+          : `Proveedor #${p.usuario_id}`;
+
+        return {
+          id: p.id,
+          name: p.nombre,
+          description: p.descripcion,
+          category: CATEGORY_MAP[p.categoria_id] || 'otros',
+          price: parseFloat(p.precio),
+          stock: p.stock,
+          image: p.img,
+          proveedorNombre,
+          usuario_id: p.usuario_id, // Mantener el ID por si se necesita
+        };
+      });
+      setResults(transformed);
+    }
+  }, [productos, user]);
 
   const handleAddToCart = (product, quantity) => {
     const inCart = cartItems.find(item => item.id === product.id);
