@@ -15,7 +15,7 @@ const sidebarItems = [
   { label: "Mi Perfil", hyperlink: "/pagina-usuario", icon: ProfileIcon },
   { label: "Mis Productos", hyperlink: "/producto", icon: ProductIcon },
   { label: "Mis Ventas", hyperlink: "/projects", icon: VenderIcon },
-  { label: "Mis Compras", hyperlink: "/purchases", icon: ShoppingBag },
+  { label: "Mis Ordenes", hyperlink: "/mis-ordenes", icon: ShoppingBag },
   { label: "Configuración", hyperlink: "/configuracion", icon: SettingsIcon },
   { label: "Cerrar sesión", icon: LogoutIcon, action: "logout" }, // Usamos action
 ];

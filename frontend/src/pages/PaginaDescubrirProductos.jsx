@@ -9,39 +9,53 @@ import { useAuth } from '../context/AuthContext.jsx';
 export default function PaginaDescubrirProductos() {
   const { productos, obtenerProductos } = useProductos();
   const { addToCart, cartItems } = useCart();
-  const { getUserById } = useAuth();
+  const { user } = useAuth();
 
   const [results, setResults] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const CATEGORY_MAP = { 1:'papeleria',2:'electronica',3:'computacion',4:'ferreteria',5:'panificacion',6:'maderas',7:'herramientas',8:'metalmecanica',9:'gastronomia',10:'construccion' };
+  const CATEGORY_MAP = { 
+    1:'papeleria',
+    2:'electronica',
+    3:'computacion',
+    4:'ferreteria',
+    5:'panificacion',
+    6:'maderas',
+    7:'herramientas',
+    8:'metalmecanica',
+    9:'gastronomia',
+    10:'construccion' 
+  };
 
-  useEffect(() => { obtenerProductos(); }, []);
+  useEffect(() => { 
+    obtenerProductos(); 
+  }, []);
 
   useEffect(() => {
     if (productos && productos.length > 0) {
-      const fetchProveedores = async () => {
-        const transformed = await Promise.all(
-          productos.map(async p => {
-            const proveedor = await getUserById(p.usuario_id);
-            return {
-              id: p.id,
-              name: p.nombre,
-              description: p.descripcion,
-              category: CATEGORY_MAP[p.categoria_id] || 'otros',
-              price: parseFloat(p.precio),
-              stock: p.stock,
-              image: p.img,
-              proveedorNombre: proveedor?.nombre || `Proveedor #${p.usuario_id}`,
-            };
-          })
-        );
-        setResults(transformed);
-      };
-      fetchProveedores();
+      const transformed = productos.map(p => {
+        // Si el producto es del usuario actual, usa su nombre
+        // Si no, muestra "Proveedor #ID"
+        const proveedorNombre = (user && p.usuario_id === user.id) 
+          ? user.nombre 
+          : `Proveedor #${p.usuario_id}`;
+
+        return {
+          id: p.id,
+          name: p.nombre,
+          description: p.descripcion,
+          category: CATEGORY_MAP[p.categoria_id] || 'otros',
+          price: parseFloat(p.precio),
+          stock: p.stock,
+          image: p.img,
+          proveedorNombre,
+          usuario_id: p.usuario_id, // Mantener el ID por si se necesita
+        };
+      });
+      setResults(transformed);
     }
-  }, [productos]);
+  }, [productos, user]);
 
   const handleAddToCart = (product, quantity) => {
     const inCart = cartItems.find(item => item.id === product.id);
