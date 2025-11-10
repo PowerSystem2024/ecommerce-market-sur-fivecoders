@@ -90,7 +90,7 @@ CREATE TABLE productos (
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT, -- Añadido campo de descripción para productos
     precio DECIMAL(10,2) NOT NULL CHECK (precio >= 0), -- Precio del producto, no puede ser negativo
-    img VARCHAR(255), -- Ruta o URL de la imagen del producto (ampliado a 255 por si es una URL larga)
+    img TEXT, -- Ruta o URL de la imagen del producto (ampliado a 255 por si es una URL larga)
     stock INT DEFAULT 0 CHECK (stock >= 0),
     fecha_carga TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

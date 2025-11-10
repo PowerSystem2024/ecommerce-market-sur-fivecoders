@@ -14,6 +14,7 @@ import PaginaDescubrirProductos from './pages/PaginaDescubrirProductos.jsx'
 import PaginaConfiguracion from './pages/PaginaConfiguracion.jsx'
 import PaginaCarrito from './pages/PaginaCarrito.jsx'
 import PaginaOrdenes from './pages/PaginaOrdenes.jsx'
+import PaginaVentas from './pages/PaginaVentas.jsx'
 
 function App() {
   const { isAuth } = useAuth();
@@ -27,15 +28,16 @@ function App() {
           <Route path="/nosotros" element={<PaginaNosotros/>} />
           <Route path="/inicio-de-sesion" element={<PaginaInicioSesion/>} />
           <Route path="/registro" element={<PaginaRegistro />} />
+          <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
          
           
           <Route element={<ProtectedRoutes isAllowed={isAuth} redirectTo="/inicio-de-sesion"/>}>
             <Route path="/pagina-usuario" element={<PaginaUsuario/>}/>
-            <Route path="/descubrir-productos" element={<PaginaDescubrirProductos/>}/>
             <Route path="/configuracion" element={<PaginaConfiguracion/>}/>
             <Route path="/cart" element={<PaginaCarrito/>}/>
             <Route path="/mis-ordenes" element={<PaginaOrdenes/>}/>
-             <Route path="/producto" element={<PaginaProducto/>}/>
+            <Route path="/producto" element={<PaginaProducto/>}/>
+            <Route path="/mis-ventas" element={<PaginaVentas/>}/>
           </Route>
 
           <Route path="*" element={<NotFound />} />

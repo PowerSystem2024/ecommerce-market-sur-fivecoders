@@ -10,7 +10,7 @@ import FiltroCategoriasProductos from '../components/BusquedaProductos/FiltroCat
 import FiltroRelevanciasProductos from '../components/BusquedaProductos/FiltroRelevanciasProductos';
 
 export default function PaginaDescubrirProductos() {
-  const { productos, obtenerProductos } = useProductos();
+  const { productos, obtenerProductosPublico } = useProductos();
   const { addToCart, cartItems } = useCart();
   const { user } = useAuth();
   const [category, setCategory] = useState('all');
@@ -51,8 +51,16 @@ export default function PaginaDescubrirProductos() {
     10:'construccion' 
   };
 
-  useEffect(() => { 
-    obtenerProductos(); 
+  // Traer catálogo público al montar
+  useEffect(() => {
+    (async () => {
+      try {
+        await obtenerProductosPublico();
+      } catch (err) {
+        console.error('Error en obtenerProductosPublico():', err);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 🔹 Transformar productos
@@ -99,28 +107,35 @@ export default function PaginaDescubrirProductos() {
   }, [productos, query, category, sort]);
 
   useEffect(() => {
-    if (productos && productos.length > 0) {
-      const transformed = productos.map(p => {
-        // Si el producto es del usuario actual, usa su nombre
-        // Si no, muestra "Proveedor #ID"
-        const proveedorNombre = (user && p.usuario_id === user.id) 
-          ? user.nombre 
-          : `Proveedor #${p.usuario_id}`;
-
-        return {
-          id: p.id,
-          name: p.nombre,
-          description: p.descripcion,
-          category: CATEGORY_MAP[p.categoria_id] || 'otros',
-          price: parseFloat(p.precio),
-          stock: p.stock,
-          image: p.img,
-          proveedorNombre,
-          usuario_id: p.usuario_id, // Mantener el ID por si se necesita
-        };
-      });
-      setResults(transformed);
+    // DEBUG: ver qué nos devuelve el contexto
+    console.log('Productos desde contexto (públicos):', productos);
+    if (!productos || productos.length === 0) {
+      setResults([]);
+      return;
     }
+
+    // Transformamos *todos* los productos (sin filtrar)
+    const transformed = productos.map(p => {
+      const proveedorNombre = (user && Number(p.usuario_id) === Number(user.id)) 
+        ? user.nombre 
+        : `Proveedor #${p.usuario_id}`;
+
+      return {
+        id: p.id,
+        name: p.nombre,
+        description: p.descripcion,
+        category: CATEGORY_MAP[p.categoria_id] || 'otros',
+        price: Number(p.precio),
+        stock: p.stock,
+        image: p.img,
+        proveedorNombre,
+        usuario_id: p.usuario_id,
+        raw: p // para depuración si lo necesitás
+      };
+    });
+
+    // Guardar todos (no filtrar)
+    setResults(transformed);
   }, [productos, user]);
 
   const handleAddToCart = (product, quantity) => {
@@ -149,6 +164,7 @@ export default function PaginaDescubrirProductos() {
       <Sidebar />
       <main className="flex-1 ml-0 sm:ml-64 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Descubrí productos</h1>
 
           {/* 🔍 Controles de búsqueda */}
