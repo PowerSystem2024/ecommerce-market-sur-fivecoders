@@ -62,35 +62,46 @@ CREATE TABLE usuarios (
     correo VARCHAR(100) UNIQUE NOT NULL, -- El correo debe ser único
     contrasenia VARCHAR(255) NOT NULL, -- Contraseña hasheada
     rol VARCHAR(100) NOT NULL DEFAULT 'consumidor', -- Rol del usuario (proveedor o consumidor)
+    gravatar VARCHAR(255), 
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    categoria_id INTEGER NOT NULL
+    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- Restricción para asegurar que el rol solo pueda ser 'proveedor' o 'consumidor'
 ALTER TABLE usuarios
 ADD CONSTRAINT chk_rol CHECK (rol IN ('proveedor', 'consumidor'));
 ```
 
-2. Tabla productos 
+2. Tabla categorias
+```sql
+CREATE TABLE categorias (
+    id SERIAL PRIMARY KEY, -- Identificador único para la categoría
+    nombre VARCHAR(100) UNIQUE NOT NULL, -- Nombre de la categoría (debe ser único)
+    descripcion TEXT -- Descripción opcional de la categoría
+);
+```
+
+3. Tabla productos 
 ```sql 
--- Almacena los productos ofrecidos por los proveedores.
 CREATE TABLE productos (
     id SERIAL PRIMARY KEY, -- SERIAL para autoincremento
     usuario_id INT NOT NULL, -- Clave foránea al usuario que provee el producto
+    categoria_id INT, -- Clave foránea a la tabla de categorías
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT, -- Añadido campo de descripción para productos
     precio DECIMAL(10,2) NOT NULL CHECK (precio >= 0), -- Precio del producto, no puede ser negativo
     img VARCHAR(255), -- Ruta o URL de la imagen del producto (ampliado a 255 por si es una URL larga)
-    stock INT DEFAULT 0 CHECK (stock >= 0), 
+    stock INT DEFAULT 0 CHECK (stock >= 0),
     fecha_carga TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE, -- Si se elimina un usuario, se eliminan sus productos
-    categoria_id INT NOT NULL
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE SET NULL -- Si se elimina una categoría, los productos asociados tendrán su categoria_id en NULL
 );
 ```
 
-3. Tabla ordenes 
+4. Tabla ordenes 
 ```sql
+-- Representa una orden de compra realizada por un consumidor.
 -- Representa una orden de compra realizada por un consumidor.
 CREATE TABLE ordenes (
     id SERIAL PRIMARY KEY, -- SERIAL para autoincremento
@@ -101,7 +112,7 @@ CREATE TABLE ordenes (
 );
 ```
 
-4. Tabla items_orden
+5. Tabla items_orden
 ```sql
 -- Detalles de los productos dentro de cada orden (lo que el consumidor compró).
 CREATE TABLE items_orden (
@@ -117,5 +128,5 @@ CREATE TABLE items_orden (
     -- ya que eso afectaría el historial de la orden. Es mejor restringir la eliminación del producto
     -- si está referenciado en un item_orden. Si realmente necesitamos eliminarlo, primero deberíamos
     -- "cancelar" o "archivar" las órdenes que lo contienen. Si prefieren la cascada, cambiamos a ON DELETE CASCADE.
-    );
+);
 ```
