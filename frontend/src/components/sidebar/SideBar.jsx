@@ -14,7 +14,7 @@ import ShoppingBag from "../../assets/shopping.svg";
 const sidebarItems = [
   { label: "Mi Perfil", hyperlink: "/pagina-usuario", icon: ProfileIcon },
   { label: "Mis Productos", hyperlink: "/producto", icon: ProductIcon },
-  { label: "Mis Ventas", hyperlink: "/projects", icon: VenderIcon },
+  { label: "Mis Ventas", hyperlink: "/mis-ventas", icon: VenderIcon },
   { label: "Mis Ordenes", hyperlink: "/mis-ordenes", icon: ShoppingBag },
   { label: "Configuración", hyperlink: "/configuracion", icon: SettingsIcon },
   { label: "Cerrar sesión", icon: LogoutIcon, action: "logout" }, // Usamos action

@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+/* src/context/ProductosContext.jsx */
 import { createContext, useState, useContext, useEffect } from 'react';
 import cliente from '../api/axios.js';
 
@@ -18,15 +18,23 @@ export function ProductosProvider({ children }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
 
-    // Obtener todos los productos
+    // Obtener todos los productos (con logs y validaciones)
     const obtenerProductos = async () => {
         try {
             setLoading(true);
             setErrors(null);
+            console.debug('[ProductosContext] GET /productos/obtener-productos, baseURL=', cliente.defaults?.baseURL);
             const res = await cliente.get('/productos/obtener-productos');
+            if (!res || !Array.isArray(res.data)) {
+                console.warn('[ProductosContext] Respuesta inesperada al obtener productos:', res);
+                setProductos([]);
+                return [];
+            }
             setProductos(res.data);
+            console.debug('[ProductosContext] Productos cargados:', res.data.length);
             return res.data;
         } catch (error) {
+            console.error('[ProductosContext] Error al obtener productos:', error?.response?.status, error?.response?.data || error.message);
             if (error.response && error.response.data) {
                 setErrors(Array.isArray(error.response.data) 
                     ? error.response.data 
@@ -34,13 +42,13 @@ export function ProductosProvider({ children }) {
             } else {
                 setErrors([{ message: 'Error al obtener productos' }]);
             }
+            setProductos([]);
             throw error;
         } finally {
             setLoading(false);
         }
     }
 
-    // Obtener producto por ID
     const obtenerProductoPorId = async (id) => {
         try {
             setLoading(true);
@@ -49,6 +57,7 @@ export function ProductosProvider({ children }) {
             setProductoActual(res.data);
             return res.data;
         } catch (error) {
+            console.error('[ProductosContext] obtenerProductoPorId error:', error);
             if (error.response && error.response.data) {
                 if (error.response.status === 404) {
                     setErrors([{ message: 'Producto no encontrado' }]);
@@ -66,18 +75,16 @@ export function ProductosProvider({ children }) {
         }
     }
 
-    // Cargar nuevo producto
     const cargarProducto = async (data) => {
         try {
             setLoading(true);
             setErrors(null);
             const res = await cliente.post('/productos/cargar', data);
-            console.log('Producto creado:', res.data);
-            
-            // Actualizar la lista de productos
+            console.log('[ProductosContext] Producto creado:', res.data);
             setProductos(prev => [...prev, ...res.data]);
             return res.data;
         } catch (error) {
+            console.error('[ProductosContext] cargarProducto error:', error);
             if (error.response && error.response.data) {
                 if (error.response.status === 409) {
                     setErrors([{ message: 'El producto ya existe' }]);
@@ -95,28 +102,17 @@ export function ProductosProvider({ children }) {
         }
     }
 
-    // Modificar producto
     const modificarProducto = async (id, data) => {
         try {
             setLoading(true);
             setErrors(null);
             const res = await cliente.put(`/productos/modificar-producto/${id}`, data);
-            console.log('Producto modificado:', res.data);
-            
-            // Actualizar el producto en la lista
-            setProductos(prev => 
-                prev.map(producto => 
-                    producto.id === id ? res.data : producto
-                )
-            );
-            
-            // Actualizar el producto actual si es el mismo
-            if (productoActual && productoActual.id === id) {
-                setProductoActual(res.data);
-            }
-            
+            console.log('[ProductosContext] Producto modificado:', res.data);
+            setProductos(prev => prev.map(producto => producto.id === id ? res.data : producto));
+            if (productoActual && productoActual.id === id) setProductoActual(res.data);
             return res.data;
         } catch (error) {
+            console.error('[ProductosContext] modificarProducto error:', error);
             if (error.response && error.response.data) {
                 if (error.response.status === 404) {
                     setErrors([{ message: 'Producto no encontrado' }]);
@@ -136,24 +132,17 @@ export function ProductosProvider({ children }) {
         }
     }
 
-    // Eliminar producto
     const eliminarProducto = async (id) => {
         try {
             setLoading(true);
             setErrors(null);
             const res = await cliente.delete(`/productos/borrar-producto/${id}`);
-            console.log('Producto eliminado:', res.data);
-            
-            // Remover el producto de la lista
+            console.log('[ProductosContext] Producto eliminado:', res.data);
             setProductos(prev => prev.filter(producto => producto.id !== id));
-            
-            // Limpiar el producto actual si es el mismo
-            if (productoActual && productoActual.id === id) {
-                setProductoActual(null);
-            }
-            
+            if (productoActual && productoActual.id === id) setProductoActual(null);
             return res.data;
         } catch (error) {
+            console.error('[ProductosContext] eliminarProducto error:', error);
             if (error.response && error.response.data) {
                 if (error.response.status === 404) {
                     setErrors([{ message: 'Producto no encontrado' }]);
@@ -171,11 +160,21 @@ export function ProductosProvider({ children }) {
         }
     }
 
-    // Limpiar errores
     const limpiarErrores = () => setErrors(null);
-
-    // Limpiar producto actual
     const limpiarProductoActual = () => setProductoActual(null);
+
+    // Auto-fetch al montar el provider
+    useEffect(() => {
+        (async () => {
+            try {
+                console.debug('[ProductosContext] Montado -> intentar cargar productos iniciales');
+                await obtenerProductos();
+            } catch (err) {
+                // ya logueado en obtenerProductos
+            }
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <ProductosContext.Provider value={{

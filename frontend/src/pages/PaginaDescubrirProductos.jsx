@@ -28,33 +28,44 @@ export default function PaginaDescubrirProductos() {
     10:'construccion' 
   };
 
+  // Traer productos siempre (no depende del user)
   useEffect(() => { 
-    obtenerProductos(); 
+    obtenerProductos().catch(err => {
+      console.error('Error en obtenerProductos():', err);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (productos && productos.length > 0) {
-      const transformed = productos.map(p => {
-        // Si el producto es del usuario actual, usa su nombre
-        // Si no, muestra "Proveedor #ID"
-        const proveedorNombre = (user && p.usuario_id === user.id) 
-          ? user.nombre 
-          : `Proveedor #${p.usuario_id}`;
-
-        return {
-          id: p.id,
-          name: p.nombre,
-          description: p.descripcion,
-          category: CATEGORY_MAP[p.categoria_id] || 'otros',
-          price: parseFloat(p.precio),
-          stock: p.stock,
-          image: p.img,
-          proveedorNombre,
-          usuario_id: p.usuario_id, // Mantener el ID por si se necesita
-        };
-      });
-      setResults(transformed);
+    // DEBUG: ver qué nos devuelve el contexto
+    console.log('Productos desde contexto:', productos);
+    if (!productos) {
+      setResults([]);
+      return;
     }
+
+    // Transformamos *todos* los productos (sin filtrar)
+    const transformed = productos.map(p => {
+      const proveedorNombre = (user && Number(p.usuario_id) === Number(user.id)) 
+        ? user.nombre 
+        : `Proveedor #${p.usuario_id}`;
+
+      return {
+        id: p.id,
+        name: p.nombre,
+        description: p.descripcion,
+        category: CATEGORY_MAP[p.categoria_id] || 'otros',
+        price: Number(p.precio),
+        stock: p.stock,
+        image: p.img,
+        proveedorNombre,
+        usuario_id: p.usuario_id,
+        raw: p // para depuración si lo necesitás
+      };
+    });
+
+    // Guardar todos (no filtrar)
+    setResults(transformed);
   }, [productos, user]);
 
   const handleAddToCart = (product, quantity) => {
@@ -79,14 +90,22 @@ export default function PaginaDescubrirProductos() {
       <main className="flex-1 ml-0 sm:ml-64 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">Descubrí productos</h1>
+          <p className="text-sm text-zinc-600 mb-4">Mostrando {results.length} productos</p>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6">
-            {results.map(product => (
-              <TarjetaProducto
-                key={product.id}
-                item={product}
-                onView={() => handleViewProduct(product)}
-              />
-            ))}
+            {results.length === 0 ? (
+              <div className="col-span-full text-center text-zinc-500 py-12">
+                No hay productos para mostrar.
+              </div>
+            ) : (
+              results.map(product => (
+                <TarjetaProducto
+                  key={product.id}
+                  item={product}
+                  onView={() => handleViewProduct(product)}
+                />
+              ))
+            )}
           </div>
         </div>
       </main>
