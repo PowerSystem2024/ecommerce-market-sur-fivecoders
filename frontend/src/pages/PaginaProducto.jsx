@@ -4,6 +4,9 @@ import TarjetaProducto from '../components/TarjetaProducto/TarjetaProducto';
 import ProductDetailModal from '../components/ModalDetalles/ModalDetalles';
 import { useProductos } from '../context/ProductosContext';
 import { useAuth } from '../context/AuthContext';
+import BusquedasProductos from '../components/BusquedaProductos/BusquedasProductos';
+import FiltroCategoriasProductos from '../components/BusquedaProductos/FiltroCategoriasProductos';
+import FiltroRelevanciasProductos from '../components/BusquedaProductos/FiltroRelevanciasProductos';
 
 export default function PaginaMisProductos() {
   const { productos, obtenerProductos, cargarProducto, modificarProducto, eliminarProducto, loading, errors } = useProductos();
@@ -181,43 +184,25 @@ export default function PaginaMisProductos() {
 
           {/* Controles de búsqueda */}
           <div className="mb-6 space-y-3">
+            <BusquedasProductos 
+              query={query}
+              setQuery={setQuery}
+              onSearch={doSearch}
+            />
+
             <div className="flex gap-3">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && doSearch()}
-                placeholder="Buscar en mis productos..."
-                className="flex-1 px-4 py-3 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              <FiltroCategoriasProductos 
+                category={category}
+                setCategory={setCategory}
+                categories={CATEGORIES}
               />
-              <button 
-                onClick={doSearch} 
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition whitespace-nowrap"
-              >
-                Buscar
-              </button>
-            </div>
-
-            <div className="flex gap-3">
-              <select 
-                value={category} 
-                onChange={(e) => setCategory(e.target.value)} 
-                className="flex-1 px-3 py-2 rounded-lg border border-zinc-300 bg-white text-sm"
-              >
-                {CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
-              </select>
-
-              <select 
-                value={sort} 
-                onChange={(e) => setSort(e.target.value)} 
-                className="flex-1 px-3 py-2 rounded-lg border border-zinc-300 bg-white text-sm"
-              >
-                <option value="relevance">Relevancia</option>
-                <option value="price_asc">Precio ↑</option>
-                <option value="price_desc">Precio ↓</option>
-              </select>
+              <FiltroRelevanciasProductos 
+                sort={sort}
+                setSort={setSort}
+              />
             </div>
           </div>
+
 
           {/* Resultados */}
           <section>
