@@ -7,7 +7,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function PaginaDescubrirProductos() {
-  const { productos, obtenerProductos } = useProductos();
+  const { productos, obtenerProductosPublico } = useProductos();
   const { addToCart, cartItems } = useCart();
   const { user } = useAuth();
 
@@ -28,18 +28,22 @@ export default function PaginaDescubrirProductos() {
     10:'construccion' 
   };
 
-  // Traer productos siempre (no depende del user)
-  useEffect(() => { 
-    obtenerProductos().catch(err => {
-      console.error('Error en obtenerProductos():', err);
-    });
+  // Traer catálogo público al montar
+  useEffect(() => {
+    (async () => {
+      try {
+        await obtenerProductosPublico();
+      } catch (err) {
+        console.error('Error en obtenerProductosPublico():', err);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     // DEBUG: ver qué nos devuelve el contexto
-    console.log('Productos desde contexto:', productos);
-    if (!productos) {
+    console.log('Productos desde contexto (públicos):', productos);
+    if (!productos || productos.length === 0) {
       setResults([]);
       return;
     }

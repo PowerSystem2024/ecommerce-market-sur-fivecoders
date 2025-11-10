@@ -9,6 +9,20 @@ export const obtenerProductos = async (req, res) => {
   return res.json(result.rowCount > 0 ? result.rows : []);
 };
 
+// Obtener todos los productos (público)
+export const obtenerProductosPublico = async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM productos ORDER BY fecha_carga DESC");
+    return res.json(Array.isArray(result.rows) ? result.rows : []);
+  } catch (error) {
+    console.error("Error obtenerProductosPublico:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+
+
+
 export const obtenerProductoPorId = async (req, res) => {
   const result = await pool.query("SELECT * FROM productos where id = $1 ", [
     req.params.id,

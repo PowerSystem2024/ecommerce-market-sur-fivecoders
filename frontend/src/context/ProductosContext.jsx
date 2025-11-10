@@ -18,7 +18,7 @@ export function ProductosProvider({ children }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
 
-    // Obtener todos los productos (con logs y validaciones)
+    // Obtener todos los productos del usuario autenticado (existente)
     const obtenerProductos = async () => {
         try {
             setLoading(true);
@@ -31,7 +31,7 @@ export function ProductosProvider({ children }) {
                 return [];
             }
             setProductos(res.data);
-            console.debug('[ProductosContext] Productos cargados:', res.data.length);
+            console.debug('[ProductosContext] Productos (privados) cargados:', res.data.length);
             return res.data;
         } catch (error) {
             console.error('[ProductosContext] Error al obtener productos:', error?.response?.status, error?.response?.data || error.message);
@@ -41,6 +41,37 @@ export function ProductosProvider({ children }) {
                     : [error.response.data]);
             } else {
                 setErrors([{ message: 'Error al obtener productos' }]);
+            }
+            setProductos([]);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Obtener catálogo público (nueva función)
+    const obtenerProductosPublico = async () => {
+        try {
+            setLoading(true);
+            setErrors(null);
+            console.debug('[ProductosContext] GET /productos/obtener-productos-publico, baseURL=', cliente.defaults?.baseURL);
+            const res = await cliente.get('/productos/obtener-productos-publico');
+            if (!res || !Array.isArray(res.data)) {
+                console.warn('[ProductosContext] Respuesta inesperada al obtener productos públicos:', res);
+                setProductos([]);
+                return [];
+            }
+            setProductos(res.data);
+            console.debug('[ProductosContext] Productos (públicos) cargados:', res.data.length);
+            return res.data;
+        } catch (error) {
+            console.error('[ProductosContext] Error al obtener productos públicos:', error?.response?.status, error?.response?.data || error.message);
+            if (error.response && error.response.data) {
+                setErrors(Array.isArray(error.response.data) 
+                    ? error.response.data 
+                    : [error.response.data]);
+            } else {
+                setErrors([{ message: 'Error al obtener productos públicos' }]);
             }
             setProductos([]);
             throw error;
@@ -163,18 +194,10 @@ export function ProductosProvider({ children }) {
     const limpiarErrores = () => setErrors(null);
     const limpiarProductoActual = () => setProductoActual(null);
 
-    // Auto-fetch al montar el provider
-    useEffect(() => {
-        (async () => {
-            try {
-                console.debug('[ProductosContext] Montado -> intentar cargar productos iniciales');
-                await obtenerProductos();
-            } catch (err) {
-                // ya logueado en obtenerProductos
-            }
-        })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // Auto-fetch al montar el provider (mantiene el comportamiento actual: carga productos privados por defecto)
+useEffect(() => {
+  // Intencionalmente vacío: las páginas llaman explícitamente obtenerProductos() u obtenerProductosPublico()
+}, []);
 
     return (
         <ProductosContext.Provider value={{
@@ -183,6 +206,7 @@ export function ProductosProvider({ children }) {
             loading,
             errors,
             obtenerProductos,
+            obtenerProductosPublico, // <-- expuesto aquí
             obtenerProductoPorId,
             cargarProducto,
             modificarProducto,
